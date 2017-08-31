@@ -2,6 +2,8 @@
 Grails Application for resetting Banner Passwords
 This repository contains the source code for a Grails web application written by Siena college.
 The web application provides a portal for INB and SSB users to reset their passwords and/or unlock their accounts.
+DISCLAIMER: Siena College is not providing any support for this application and is not responsible for any outcomes that may occur if you choose to run the application in your environment. 
+
 
 
 SETUP to deploy system
