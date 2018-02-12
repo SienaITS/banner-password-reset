@@ -7,7 +7,7 @@
 <body>
 <h1>Banner Password Reset Access Blocked</h1>
 
-<p>The following user's access to the Banner Password Reset application (bannerpwdreset.siena.edu) has been blocked due to too many invalid attempts:</p>
+<p>The following user's access to the Banner Password Reset application has been blocked due to too many invalid attempts:</p>
 
 <table>
     <tr><th>AD Username:</th><td>${ldap_username}</td></tr>

@@ -16,8 +16,8 @@
 <div id="stepsDiv">
     <h1>Steps in Workflow:</h1>
     <ol>
-        <li>Choose Action</li>
         <li>Choose System</li>
+        <li>Choose Action</li>
         <li>Verify Username</li>
         <li>Verify Birth Date</li>
         <li class="currentStep"><a href="https://mail.google.com/" target="_blank">Check your Email</a></li>
@@ -29,7 +29,7 @@
     <h3>Banner SSB Account Successfully Unlocked</h3>
 
     <p>Your Self Service Banner (SSB) Account, ${account.spridenID}, has been successfully unlocked.  A separate email notification has been sent to ${account.email}.  You can now log into Banner SSB by going to <a
-            href="http://selfservice.siena.edu/">http://selfservice.siena.edu</a>.<br/></p>
+            href="INSERT_LINK_HERE">INSERT_LINK_HERE</a>.<br/></p>
 
     <p>Please note: The password for your account has not changed.  Your account has only been unlocked so that you can log in.<br/>
     </p>

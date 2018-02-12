@@ -1,5 +1,6 @@
 package edu.siena.banner.passwordreset
 
+//poorly named class but this class represents a banner password reset/unlock action.
 class Account implements Serializable {
 
     String ldapUsername
@@ -13,11 +14,13 @@ class Account implements Serializable {
     String system
     //String userType
     Date actionDate
+    String ipAddress
 
-    Account(String _action, String _ldapUsername)
+    Account(String _system, String _ldapUsername, String _ipAddress)
     {
-        action = _action
+        system = _system
         ldapUsername = _ldapUsername
+        ipAddress = _ipAddress
         actionDate = new Date()
     }
 
@@ -31,6 +34,7 @@ class Account implements Serializable {
         action (inList: ['unlock', 'reset'])
         system (inlist: ['INB', 'SSB'])
         //userType (inList: ['EMPLOYEE', 'FACULTY', 'STUDENT'])
+        ipAddress (nullable: true)
     }
 
     static mapping = {
@@ -47,5 +51,6 @@ class Account implements Serializable {
         action column: 'gzrpwdreset_action', sqlType: 'VARCHAR2', length: 6
         system column: 'gzrpwdreset_system', sqlType: 'VARCHAR2', length: 3
         actionDate column: 'gzrpwdreset_action_date', sqlType: 'DATE'
+        ipAddress column: 'gzrpwdreset_ip_address', sqlType: 'VARCHAR2', length: 45
     }
 }

@@ -6,6 +6,8 @@ import groovy.sql.Sql
 @Transactional
 class GobeaccService {
 
+    private static final log = org.apache.commons.logging.LogFactory.getLog(this)
+
     static public int getPidmFromUsername (def dataSource, def username)
     {
         assert dataSource != null, "dataSource is null.   Check DataSource.groovy file."
@@ -41,7 +43,13 @@ class GobeaccService {
 
         if (row == null)
         {
-            throw new Exception("GOBEACC/SPRIDEN record not found.")
+            try{
+                throw new Exception("GOBEACC/SPRIDEN record not found for username: $username")
+            }
+            catch(exception)
+            {
+                log.error ("Exception occurred. ${exception?.message}", exception)
+            }
         }
         else{
             return row.spriden_id

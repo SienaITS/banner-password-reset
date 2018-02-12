@@ -17,8 +17,8 @@
 <div id="stepsDiv">
     <h1>Steps in Workflow:</h1>
     <ol>
-        <li>Choose Action</li>
         <li>Choose System</li>
+        <li>Choose Action</li>
         <li class="currentStep">Verify Username</li>
         <li>Verify Birth Date</li>
         <li>Check your Email</li>
@@ -34,7 +34,7 @@
             <div class="errors"><ul><li>${message}</li></ul></div>
         </g:if>
 
-        Enter your Banner ID:
+        Enter your User ID (Siena ID):
         <g:textField name="spridenID"></g:textField>
         <br/>
         </p>

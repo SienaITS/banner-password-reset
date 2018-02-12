@@ -5,6 +5,7 @@ import groovy.sql.Sql
 
 @Transactional
 class SsbService {
+    private static final log = org.apache.commons.logging.LogFactory.getLog(this)
 
     static public def unlockAccount (def dataSource, def spridenPidm) {
         assert dataSource != null, "dataSource is null.   Check DataSource.groovy file."
@@ -25,7 +26,13 @@ class SsbService {
 
         if (row == null)
         {
-            throw new Exception("Self-Service PIN Reset Failed")
+            try{
+                throw new Exception("Self-Service PIN Reset Failed for pidm: $spridenPidm")
+            }
+            catch(exception)
+            {
+                log.error ("Exception occurred. ${exception?.message}", exception)
+            }
         }
 
         def rowsChanged = sql.call(

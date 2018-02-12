@@ -85,9 +85,17 @@ grails.project.dependency.resolution = {
         compile ":rest:0.8"
 
         //added LDAP plugin for LDAP authenication
-        compile "org.grails.plugins:spring-security-ldap:2.0.1"
+        //compile "org.grails.plugins:spring-security-ldap:2.0.1"
         //added dependency of spring security core and ldap for retrieving attributes from LDAP
         compile "org.grails.plugins:spring-security-core:2.0.0"
         compile "org.grails.plugins:spring-security-ldap:2.0.1"
+
+        //added plugin for Google ReCaptcha service
+        compile ':recaptcha:1.7.0'
+        //bruteforce-defender not required for recaptcha-spring-security plugin
+        //compile "org.grails.plugins:bruteforce-defender:1.1"
+        //added recaptcha-spring-security plugin which combines recaptcha with spring-security login page
+        //compile "org.grails.plugins:recaptcha-spring-security:3.0.1"
+        compile ':recaptcha-spring-security:1.0'
     }
 }

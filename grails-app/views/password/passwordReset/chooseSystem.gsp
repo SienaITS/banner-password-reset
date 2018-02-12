@@ -30,8 +30,8 @@
 <div id="stepsDiv">
     <h1>Steps in Workflow:</h1>
     <ol>
-        <li>Choose Action</li>
         <li class="currentStep">Choose System</li>
+        <li>Choose Action</li>
         <li>Verify Username</li>
         <li>Verify Birth Date</li>
         <li>Check your Email</li>

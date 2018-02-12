@@ -6,6 +6,7 @@ CREATE TABLE GENERAL.GZRPWDLOCK
     gzrpwdlock_ldap_username VARCHAR2(20) NOT NULL,
     gzrpwdlock_ip_address VARCHAR2(45),
     gzrpwdlock_date_locked DATE NOT NULL,
+    gzrpwdlock_date_unlocked DATE, 
     CONSTRAINT gzrpwdlock_PK PRIMARY KEY (gzrpwdlock_id)
 );
 
@@ -39,6 +40,7 @@ COMMENT ON COLUMN GENERAL.GZRPWDLOCK.gzrpwdlock_id IS 'Primary (Surrogate) Key f
 COMMENT ON COLUMN GENERAL.GZRPWDLOCK.gzrpwdlock_ldap_username IS 'The username of the Siena account pulled from LDAP/AD.';
 COMMENT ON COLUMN GENERAL.GZRPWDLOCK.gzrpwdlock_ip_address IS 'The IP address of the web user';
 COMMENT ON COLUMN GENERAL.GZRPWDLOCK.gzrpwdlock_date_locked IS 'The date and time when the account became locked.'; 
+COMMENT ON COLUMN GENERAL.GZRPWDLOCK.gzrpwdlock_date_unlocked IS 'The date and time when ITS unlocked the account.';
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON GENERAL.GZRPWDLOCK TO GRAILS_USER; 
 GRANT SELECT ON GENERAL.GZRPWDLOCK_SEQ TO GRAILS_USER;

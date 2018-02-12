@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 class PasswordController {
     def systemLockedErrorMessage = "Your access to this system has been blocked due to too many invalid unlock/reset attempts.   Please contact helpdesk@siena.edu to re-gain access to this system."
 
+
     def index() {
         redirect(action:"passwordReset")
     }
@@ -12,6 +13,7 @@ class PasswordController {
     def passwordResetFlow = {
         initFlow {
             action {
+
                 //set attempts to zero if not initialized
                 if (session.attempts == null) {
                     session.attempts = 0
@@ -32,87 +34,98 @@ class PasswordController {
             }
 
             on("error").to "systemError"
-            on("success").to"startResetAttempts"
+            on("success").to"chooseSystemAttempts"
         }
 
-        startResetAttempts {
+        chooseSystemAttempts {
             subflow(action:"attempts")
-            on("proceed").to "startReset"
+            on("proceed").to "chooseSystemPrep"
             on("accountLocked") {
                 flash.message = systemLockedErrorMessage
             }.to "systemError"
         }
 
-        startReset {
+        chooseSystemPrep {
+            action {
+                def pidm = SpridenService.getPidmFromID(dataSource, conversation.sienaUserDetails.employeeID)
+                def bannerUsername = GobeaccService.getUsernameFromPidm(dataSource, pidm)
+                //check to disable INB reset/unlock
+                if (InbService.isValidUsername(dataSource, bannerUsername))
+                {
+                    flow.disableINB = "false"
+                }
+                else {
+                    flow.disableINB = "true"
+                }
+                //check to disable SSB reset/unlock
+                if (SsbService.isValidUser(dataSource, pidm)){
+                    flow.disableSSB = "false"
+                }
+                else {
+                    flow.disableSSB = "true"
+                }
+            }
+            on("success").to "chooseSystem"
+        }
+
+        chooseSystem {
+            on("selfServiceBanner"){
+                conversation?.account = new Account('SSB', conversation.sienaUserDetails.username, IpService.getIPAddress(request))
+            }.to "chooseActionAttempts"
+            on("internetNativeBanner"){
+                conversation?.account = new Account('INB', conversation.sienaUserDetails.username, IpService.getIPAddress(request))
+            }.to "chooseActionAttempts"
+        }
+
+        chooseActionAttempts {
+            subflow(action:"attempts")
+            on("proceed").to "chooseAction"
+            on("accountLocked") {
+                flash.message = systemLockedErrorMessage
+            }.to "systemError"
+        }
+
+        chooseAction {
             on("unlock").to "unlockAccount"
             on("reset").to "resetPassword"
         }
 
         unlockAccount {
             action {
-                //SienaUserDetails sienaUserDetails = SecurityContextHolder.getContext().getAuthentication().getPrincipal() //get AD attributes and username
-                conversation?.account = new Account('unlock', conversation.sienaUserDetails.username)
-                def pidm = SpridenService.getPidmFromID(dataSource, conversation.sienaUserDetails.employeeID)
-                def bannerUsername = GobeaccService.getUsernameFromPidm(dataSource, pidm)
-                //check to disable INB reset/unlock
-                if (InbService.isValidUsername(dataSource, bannerUsername))
-                {
-                    flow.disableINB = "false"
+                conversation?.account?.action = 'unlock'
+                if (conversation?.account?.system == 'INB') {
+                    inb ()
                 }
-                else {
-                    flow.disableINB = "true"
+                else if (conversation?.account?.system == 'SSB') {
+                    ssb ()
                 }
-                //check to disable SSB reset/unlock
-                if (SsbService.isValidUser(dataSource, pidm)){
-                    flow.disableSSB = "false"
-                }
-                else {
-                    flow.disableSSB = "true"
+                else{
+                    flash.message = "A routing error has occurred."
+                    error()
                 }
             }
-            on("success").to "chooseSystemAttempts"
+            on("inb").to "getUsernameAttempts"
+            on("ssb").to "getIDAttempts"
+            on("error").to "systemError"
         }
 
         resetPassword {
             action {
-                //SienaUserDetails sienaUserDetails = SecurityContextHolder.getContext().getAuthentication().getPrincipal()  //get AD attributes and username
-                conversation?.account = new Account('reset', conversation.sienaUserDetails.username)
-                def pidm = SpridenService.getPidmFromID(dataSource, conversation.sienaUserDetails.employeeID)
-                def bannerUsername = GobeaccService.getUsernameFromPidm(dataSource, pidm)
-                //check to disable INB reset/unlock
-                if (InbService.isValidUsername(dataSource, bannerUsername))
-                {
-                    flow.disableINB = "false"
+                conversation?.account?.action = 'reset'
+                if (conversation?.account?.system == 'INB') {
+                    inb ()
                 }
-                else {
-                    flow.disableINB = "true"
+                else if (conversation?.account?.system == 'SSB') {
+                    ssb ()
                 }
-                //check to disable SSB reset/unlock
-                if (SsbService.isValidUser(dataSource, pidm)){
-                    flow.disableSSB = "false"
-                }
-                else {
-                    flow.disableSSB = "true"
+                else{
+                    flash.message = "A routing error has occurred."
+                    error()
                 }
             }
-            on("success").to "chooseSystemAttempts"
-        }
-
-        chooseSystemAttempts {
-            subflow(action:"attempts")
-            on("proceed").to "chooseSystem"
-            on("accountLocked") {
-                flash.message = systemLockedErrorMessage
-            }.to "systemError"
-        }
-
-        chooseSystem {
-            on("selfServiceBanner"){
-              conversation?.account?.system = 'SSB'
-            }.to "getIDAttempts"
-            on("internetNativeBanner"){
-                conversation?.account?.system = 'INB'
-            }.to "getUsernameAttempts"
+            on("inb").to "getUsernameAttempts"
+            on("ssb").to "getIDAttempts"
+            on("error").to "systemError"
         }
 
         getIDAttempts {
@@ -251,7 +264,7 @@ class PasswordController {
                 SsbService.unlockAccount(dataSource, conversation.account.spridenPidm)
                 mailService.sendMail{
                     to conversation.account.email
-                    from "bannerpwdreset@siena.edu"
+                    from "bannerpwdreset@yourhostname.edu"
                     subject "Banner SSB Account Unlocked"
                     html g.render(template: "/mail/unlockSSB", model:[name: conversation.account.firstName + " " + conversation.account.lastName])
                 }
@@ -269,10 +282,9 @@ class PasswordController {
             action{
                 def pin = SsbService.resetPin(dataSource, conversation.account.spridenPidm)
 
-                def pwpushLink = 'https://pwpush.siena.edu/p/'
+                def pwpushLink = 'https://www.pwpush.com/p/'
 
-                //create pwpush.siena.edu link by making HTTP POST JSON request against pwpush server
-                withHttp(uri: "https://pwpush.siena.edu/p.json") {
+                withHttp(uri: "https://www.pwpush.com/p.json") {
                     //%2E is URL encoded for period . character
                     def data = request(groovyx.net.http.Method.POST, groovyx.net.http.ContentType.JSON ) { req ->
                         body = [
@@ -294,10 +306,16 @@ class PasswordController {
                 withHttp(uri: pwpushLink) {
                     def data = request(groovyx.net.http.Method.GET, groovyx.net.http.ContentType.HTML ) { req ->
                         response.failure = { resp ->
-                            throw new Exception("pwpush get request failed: " + resp)
+                            try{
+                                throw new Exception("pwpush get request failed for pidm: $conversation.account.spridenPidm " + resp)
+                            }
+                            catch(exception)
+                            {
+                                log.error ("Exception occurred. ${exception?.message}", exception)
+                            }
                         }
                         response.success = { resp ->
-                            println resp
+                            log.info resp
                         }
                     }
                 }
@@ -345,7 +363,6 @@ class PasswordController {
 
                 def pwpushLink = 'https://pwpush.siena.edu/p/'
 
-                //create pwpush.siena.edu link by making HTTP POST JSON request against pwpush server
                 withHttp(uri: "https://pwpush.siena.edu/p.json") {
                     //%2E is URL encoded for period . character
                     def data = request(groovyx.net.http.Method.POST, groovyx.net.http.ContentType.JSON ) { req ->
@@ -369,10 +386,16 @@ class PasswordController {
                 withHttp(uri: pwpushLink) {
                     def data = request(groovyx.net.http.Method.GET, groovyx.net.http.ContentType.HTML ) { req ->
                         response.failure = { resp ->
-                            throw new Exception("pwpush get request failed: " + resp)
+                            try{
+                                throw new Exception("pwpush get request failed for pidm: $conversation.account.spridenPidm " + resp)
+                            }
+                            catch(exception)
+                            {
+                                log.error ("Exception occurred. ${exception?.message}", exception)
+                            }
                         }
                         response.success = { resp ->
-                            println resp
+                            log.info resp
                         }
                     }
                 }
@@ -404,7 +427,10 @@ class PasswordController {
     def attemptsFlow = {
         checkAttempts{
             action {
-                if (session.attempts >= 5){
+                if (AccountService.isSystemAccessBlocked(dataSource, conversation.sienaUserDetails.username)) {
+                    error()
+                }
+                else if (session.attempts >= 5){
                     //create LockedAccount object
                     conversation?.lockedAccount = new LockedAccount(conversation.sienaUserDetails.username, IpService.getIPAddress(request))
                     if (conversation?.account?.firstName == null){
@@ -420,9 +446,10 @@ class PasswordController {
                         html g.render(template: "/mail/systemAccountLocked", model:[name: conversation.account.firstName + " " + conversation.account.lastName])
 
                     }
-                    //email/notify ITS?
+                    //email/notify ITS? - create JIRA ticket
                     mailService.sendMail{
-                        to "mstanco@siena.edu"
+                        to "helpdesk@siena.edu"
+                        cc "q-banner@siena.edu"
                         from "bannerpwdreset@siena.edu"
                         subject "Banner Password Reset Access Blocked"
                         html g.render(template: "/mail/systemAccountLockedITS", model:[ldap_username: conversation.lockedAccount.ldapUsername, ip_address:conversation.lockedAccount.ipAddress])
@@ -430,9 +457,6 @@ class PasswordController {
 
                     //save lockedAccount to DB to prevent user from using the application
                     conversation.lockedAccount.save()
-                    error()
-                }
-                else if (AccountService.isSystemAccessBlocked(dataSource, conversation.sienaUserDetails.username)) {
                     error()
                 }
             }

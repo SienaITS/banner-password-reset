@@ -1,10 +1,12 @@
+import edu.siena.banner.passwordreset.DESCodec
+
 dataSource {
     pooled = true
     //jmxExport = true
     dialect = org.hibernate.dialect.Oracle10gDialect
     driverClassName = "oracle.jdbc.OracleDriver"
     username = "grails_user"
-    password = "enter_password_here"
+    password = DESCodec.decode("your_encrypted_password") //you can encrypt password with DESCodec.encode(string password)
 }
 hibernate {
     cache.use_second_level_cache = true
@@ -27,7 +29,7 @@ environments {
     }
     test {
         dataSource {
-            dbCreate = "validate"
+            dbCreate = "update"
             url = "jdbc:oracle:thin:@bannerDBhostname:port:ORACLE_SID"
         }
     }
@@ -35,6 +37,7 @@ environments {
         dataSource {
             dbCreate = "validate"
             url = "jdbc:oracle:thin:@bannerDBhostname:port:ORACLE_SID"
+
         }
     }
 }

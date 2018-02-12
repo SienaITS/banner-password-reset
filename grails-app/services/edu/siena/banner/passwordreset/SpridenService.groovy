@@ -5,6 +5,7 @@ import groovy.sql.Sql
 
 @Transactional
 class SpridenService {
+    private static final log = org.apache.commons.logging.LogFactory.getLog(this)
 
     static public Account getSpridenInfoByPidm (def dataSource, int _spriden_pidm, Account account)
     {
@@ -13,7 +14,13 @@ class SpridenService {
         Sql sql = Sql.newInstance(dataSource)
 
         if (account == null){
-            throw new Exception("parameter account is null")
+            try {
+                throw new Exception("parameter account is null for pidm: $_spriden_pidm")
+            }
+            catch(exception)
+            {
+                log.error ("Exception occurred. ${exception?.message}", exception)
+            }
         }
 
         def row = sql.firstRow([spriden_pidm: _spriden_pidm], 'select spriden_pidm, spriden_id, spriden_last_name, spriden_first_name from spriden where spriden_change_ind is null and spriden_pidm = :spriden_pidm')
@@ -27,7 +34,13 @@ class SpridenService {
         }
         else if (row == null)
         {
-            throw new Exception("spriden record not found.")
+            try{
+                throw new Exception("spriden record not found for pidm: $_spriden_pidm")
+            }
+            catch(exception)
+            {
+                log.error ("Exception occurred. ${exception?.message}", exception)
+            }
         }
 
         sql.close()
@@ -41,16 +54,19 @@ class SpridenService {
         Sql sql = Sql.newInstance(dataSource)
 
         if (account == null){
-            throw new Exception("parameter account is null")
+            try {
+                throw new Exception("parameter account is null for id: $_spriden_id")
+            }
+            catch(exception)
+            {
+                log.error ("Exception occurred. ${exception?.message}", exception)
+            }
         }
-
-        println "SPRIDEN_ID: " + _spriden_id
 
         def row = sql.firstRow([spriden_id: _spriden_id], 'select spriden_pidm, spriden_id, spriden_last_name, spriden_first_name from spriden where spriden_change_ind is null and spriden_id = :spriden_id')
 
         if (row != null)
         {
-            println row.spriden_pidm + " " + row.spriden_id
             account.spridenPidm = row.spriden_pidm
             account.spridenID = row.spriden_id
             account.lastName = row.spriden_last_name
@@ -58,7 +74,13 @@ class SpridenService {
         }
         else if (row == null)
         {
-            throw new Exception("spriden record not found.")
+            try{
+                throw new Exception("spriden record not found for id: $_spriden_id")
+            }
+            catch(exception)
+            {
+                log.error ("Exception occurred. ${exception?.message}", exception)
+            }
         }
 
         sql.close()

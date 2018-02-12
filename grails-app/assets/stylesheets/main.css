@@ -734,3 +734,11 @@ a.skip {
 #login .inner .login_message {
     color:#FCC917 !important;
 }
+
+/*SET SPACING BETWEEN P TAGS */
+p {
+    display: block;
+    margin: .5em;
+}
+
+.recaptcha

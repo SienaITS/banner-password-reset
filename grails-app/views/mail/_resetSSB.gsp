@@ -14,7 +14,7 @@
 <body>
 <h1>Banner SSB Password Reset</h1>
 <p>Dear ${name},</p>
-<p>The password for your Self Service Banner (SSB) account has been reset as requested through the bannerpwdreset.siena.edu application.  If you did not request that your password be reset, please contact ITS (<a href="mailto:helpdesk@siena.edu">helpdesk@siena.edu</a> or 518-782-6000) immediately because this may mean that your account has been compromised.  The security of your account is very important to us.</p>
+<p>The password for your Self Service Banner (SSB) account has been reset as requested through the Banner Password Reset application</a>.  If you did not request that your password be reset, please contact ITS immediately because this may mean that your account has been compromised.  The security of your account is very important to us.</p>
 <p>
     The new password for your account can be obtained by clicking on the link below:<br/>
     <a href="${password}">${password}</a><br/>

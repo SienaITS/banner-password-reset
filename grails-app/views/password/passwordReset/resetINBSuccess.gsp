@@ -16,8 +16,8 @@
 <div id="stepsDiv">
     <h1>Steps in Workflow:</h1>
     <ol>
-        <li>Choose Action</li>
         <li>Choose System</li>
+        <li>Choose Action</li>
         <li>Verify Username</li>
         <li>Verify Birth Date</li>
         <li class="currentStep"><a href="https://mail.google.com/" target="_blank">Check your Email</a></li>
@@ -32,7 +32,7 @@
     </p>
 
     <p>You can sign into Banner using your new password by going to <a
-            href="http://banner.siena.edu">http://banner.siena.edu</a>.  After signing into Banner with this password you will be forced to change your password. For security purposes, Banner INB passwords must be changed every 90 days and can not be re-used.<br/>
+            href="INSERT_LINK_HERE">INSERT_LINK_HERE</a>.  After signing into Banner with this password you will be forced to change your password. For security purposes, Banner INB passwords must be changed every 90 days and can not be re-used.<br/>
     </p>
     <g:form>
         <p>To perform another action on your Banner account, you may click the button:</p>

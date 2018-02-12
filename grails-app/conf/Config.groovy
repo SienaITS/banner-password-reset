@@ -1,3 +1,4 @@
+import edu.siena.banner.passwordreset.DESCodec
 // locations to search for config files that get merged into the main config;
 // config files can be ConfigSlurper scripts, Java properties files, or classes
 // in the classpath in ConfigSlurper format
@@ -102,8 +103,11 @@ log4j.main = {
     //appenders {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
+    //info ('net.sf.ehcache.hibernate') //logging for services
+    //info 'grails.app' //services and controllers - siena - MCS
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
+           'grails.app.services', //services - added by siena- MCS
            'org.codehaus.groovy.grails.web.pages',          // GSP
            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
@@ -119,7 +123,7 @@ log4j.main = {
 grails{
     mail{
         //added mail server configuration to be able to send email through grails application
-        host = "enter hostname for SMTP server here"
+        host = "YOUR_SMTP_HOST"  //enter smtp host name here
         port = 25
     }
 }
@@ -132,15 +136,14 @@ grails{
 //        'ou=groups,dc=yourcompany,dc=com'
 //grails.plugin.springsecurity.ldap.search. base = 'dc=yourcompany,dc=com'
 
-// LDAP config example for Active Directory
+// LDAP config for Active Directory
 grails.plugin.springsecurity.ldap.context.managerDn = 'uid=admin,ou=system'
-grails.plugin.springsecurity.ldap.context.managerPassword = 'secret'
+grails.plugin.springsecurity.ldap.context.managerPassword = DESCodec.decode("your_encrypted_password") //you can encrypt password with DESCodec.encode(string password)
 grails.plugin.springsecurity.ldap.context.server = 'ldap://ldapserverhostname:port/'
 grails.plugin.springsecurity.ldap.authorities.ignorePartialResultException = true // typically needed for Active Directory
-grails.plugin.springsecurity.ldap.search.base = 'ou=groups,dc=yourcompany,dc=com'
+grails.plugin.springsecurity.ldap.search.base = 'ou=groups,dc=yourcompany,dc=com' //all the LDAP groups that you want to have access to the application
 grails.plugin.springsecurity.ldap.search.filter="sAMAccountName={0}" // for Active Directory you need this
-grails.plugin.springsecurity.ldap.
-        search.searchSubtree = true
+grails.plugin.springsecurity.ldap.search.searchSubtree = true
 grails.plugin.springsecurity.ldap.auth.hideUserNotFoundExceptions = false
 grails.plugin.springsecurity.ldap.search.attributesToReturn = ['mail',
                                                                 'displayName',
@@ -148,15 +151,20 @@ grails.plugin.springsecurity.ldap.search.attributesToReturn = ['mail',
 grails.plugin.springsecurity.providerNames = ['ldapAuthProvider',
                                               'anonymousAuthenticationProvider'] // specify this when you want to skip attempting to load from db and only use LDAP
 grails.plugin.springsecurity.ldap.useRememberMe = false //disable remember me
-grails.plugin.springsecurity.ldap.authorities.groupSearchBase = 'ou=groups,dc=yourcompany,dc=com'
-grails.plugin.springsecurity.ldap.authorities.retrieveGroupRoles = false
+
+//role-specific LDAP config
+grails.plugin.springsecurity.ldap.authorities.groupSearchBase = 'YOUR_ITS_LDAP_CN' //enter full CN of ldap group that has all ITS users who you want to access admin application.
+grails.plugin.springsecurity.ldap.authorities.retrieveGroupRoles = true
+grails.plugin.springsecurity.ldap.authorities.groupSearchFilter = 'member={0}' // Active Directory specific for not supporting group recursion:
+//grails.plugin.springsecurity.ldap.authorities.groupSearchFilter = '(member:1.2.840.113556.1.4.1941:={0})' // Active Directory specific for group recursion
+grails.plugin.springsecurity.ldap.authorities.retrieveDatabaseRoles=false
 
 //added from https://stackoverflow.com/questions/20696211/access-denied-and-getting-sorry-youre-not-authorized-to-view-this-page-after
 grails.plugin.springsecurity.rejectIfNoRule = false
 grails.plugin.springsecurity.fii.rejectPublicInvocations = false
 grails.plugin.springsecurity.securityConfigType = 'InterceptUrlMap'
 grails.plugin.springsecurity.interceptUrlMap = [
-//        '/':                              ['permitAll'],
+        '/':                              ['permitAll'],
 //        //'/':               ['IS_AUTHENTICATED_ANONYMOUSLY'],
         '/index':                         ['permitAll'],
         '/index.gsp':                     ['permitAll'],
@@ -169,6 +177,17 @@ grails.plugin.springsecurity.interceptUrlMap = [
         '/**/favicon.ico':                ['permitAll'],
         '/login/**':                      ['permitAll'],
         '/logout/**':                     ['permitAll'],
+        '/auth/**':                   ['permitAll'],
         '/password/**':                   ['IS_AUTHENTICATED_FULLY'],
-        '/mail/**':                       ['IS_AUTHENTICATED_FULLY']
+        '/mail/**':                       ['IS_AUTHENTICATED_FULLY'],
+        '/lockedAccount/**':                   ['ROLE_ITS_GLOBAL'],
 ]
+
+//needed for bruteforce-defender/recaptcha-spring-security
+grails.plugin.springsecurity.useSecurityEventListener = true
+
+//config needed for recaptcha-spring-security plugin
+bruteforcedefender {
+    time = 5
+    allowedNumberOfAttempts = 3
+}

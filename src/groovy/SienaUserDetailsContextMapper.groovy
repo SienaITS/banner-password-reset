@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper
 
 //https://grails-plugins.github.io/grails-spring-security-ldap/v3/index.html#custom-userdetailscontextmapper
-
 @CompileStatic
 class SienaUserDetailsContextMapper implements UserDetailsContextMapper {
 

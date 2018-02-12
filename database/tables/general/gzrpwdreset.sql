@@ -13,6 +13,7 @@ CREATE TABLE GENERAL.GZRPWDRESET
     gzrpwdreset_action VARCHAR2(6) NOT NULL,
     gzrpwdreset_system VARCHAR2(3) NOT NULL,
     gzrpwdreset_action_date DATE NOT NULL,
+    gzrpwdreset_ip_address VARCHAR2(45),
     CONSTRAINT GZRPWDRESET_PK PRIMARY KEY (gzrpwdreset_id),
     CONSTRAINT gzbpwdreset_action_ck CHECK (gzrpwdreset_action IN ('unlock', 'reset')),
     CONSTRAINT gzbpwdreset_system_ck CHECK (gzrpwdreset_system IN ('INB', 'SSB'))
@@ -55,6 +56,7 @@ COMMENT ON COLUMN GENERAL.GZRPWDRESET.gzrpwdreset_email IS 'The email address to
 COMMENT ON COLUMN GENERAL.GZRPWDRESET.gzrpwdreset_action IS 'The action that was requested by the user using the password reset application.  Valid actions include: unlocking an account or reseting a password.';
 COMMENT ON COLUMN GENERAL.GZRPWDRESET.gzrpwdreset_system IS 'The system to perform the action on.  Valid choices are either Internet Native Banner (INB) or Self-Service Banner (SSB).';
 COMMENT ON COLUMN GENERAL.GZRPWDRESET.gzrpwdreset_action_date IS 'The date and time when the action occurred.'; 
+COMMENT ON COLUMN GENERAL.GZRPWDRESET.gzrpwdreset_ip_address IS 'The IP address of the web user';
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON GENERAL.GZRPWDRESET TO GRAILS_USER; 
 GRANT SELECT ON GENERAL.GZRPWDRESET_SEQ TO GRAILS_USER;

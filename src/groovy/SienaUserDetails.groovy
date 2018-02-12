@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.User
 
 //https://grails-plugins.github.io/grails-spring-security-ldap/v3/index.html#custom-userdetailscontextmapper
-
 @CompileStatic
 class SienaUserDetails extends User implements Serializable {
 
